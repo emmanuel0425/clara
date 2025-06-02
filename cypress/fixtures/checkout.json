@@ -1,0 +1,9 @@
+{
+  "cartTitle": "Your Cart",
+  "overviewTitle": "Checkout: Overview",
+  "paymentInfo": "SauceCard #31337",
+  "shippingInfo": "Free Pony Express Delivery!",
+  "checkoutCompleteTitle": "Checkout: Complete!",
+  "orderConfirmationTitle": "Thank you for your order!",
+  "orderConfirmationMsg": "Your order has been dispatched, and will arrive just as fast as the pony can get there!"
+}
