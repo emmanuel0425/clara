@@ -1,4 +1,6 @@
 import { Login } from '../locators/login';
+import { checkout } from './checkout';
+import { typeIntoField } from '../../e2e/utils/form-utils';
 
 class LoginPO {
   /**
@@ -16,9 +18,9 @@ class LoginPO {
    * @param password User's password
    * @author Emmanuel
    */
-  enterUsernameAndPassord(username: string, password: string): void {
-    cy.get(Login.USERNAME_TXTBOX).should('be.visible').type(username);
-    cy.get(Login.PASSWORD_TXTBOX).should('be.visible').type(password);
+  enterUsernameAndPassword(username: string, password: string): void {
+    typeIntoField(Login.USERNAME_TXTBOX, username);
+    typeIntoField(Login.PASSWORD_TXTBOX, password);
   }
 
   /**
@@ -27,7 +29,7 @@ class LoginPO {
    * @author Emmanuel
    */
   enterUsername(username: string): void {
-    cy.get(Login.USERNAME_TXTBOX).should('be.visible').type(username);
+    typeIntoField(Login.USERNAME_TXTBOX, username);
   }
 
   /**
@@ -36,7 +38,7 @@ class LoginPO {
    * @author Emmanuel
    */
   enterPassword(password: string): void {
-    cy.get(Login.PASSWORD_TXTBOX).should('be.visible').type(password);
+    typeIntoField(Login.PASSWORD_TXTBOX, password);
   }
 
   /**
@@ -55,23 +57,18 @@ class LoginPO {
     cy.get(Login.INVENTORY_DIV)
       .children()
       .should('have.length', 6)
-      .then(($elements) => {
-        for (let i = 0; i < $elements.length; i++) {
-          cy.get(`#item_${i}_title_link`).then(($el) => {
-            // Get title text for each item
-            const itemTitle: string = $el.text();
+      .each(($el, index) => {
+        cy.get(`#item_${index}_title_link`).then(($link) => {
+          const itemTitle: string = $link.text();
+          cy.wrap($link).scrollIntoView().click();
 
-            cy.wrap($el).scrollIntoView().click();
-            // Assert selected item is the same
-            cy.get(Login.ITEM_TITLE_TEXT).should('have.text', itemTitle);
+          cy.get(Login.ITEM_TITLE_TEXT).should('have.text', itemTitle);
+          cy.contains(Login.BACK_TO_PRODUCTS_BUTTON).should('be.visible').click();
 
-            cy.contains(Login.BACK_TO_PRODUCTS_BUTTON).should('be.visible').click();
-            cy.fixture('login').then((data) => {
-              // Assert user naviagates back to Home Page to continue navigation until the last item
-              cy.get(Login.HOME_PAGE_TITLE).invoke('text').should('eq', data.title);
-            });
+          cy.fixture('login').then((data) => {
+            cy.get(Login.HOME_PAGE_TITLE).invoke('text').should('eq', data.title);
           });
-        }
+        });
       });
   }
 }

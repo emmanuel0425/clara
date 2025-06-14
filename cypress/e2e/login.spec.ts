@@ -19,7 +19,7 @@ When('User enters {string} and {string}', (username: string, password: string) =
   } else if (password === '') {
     login.enterUsername(username);
   } else {
-    login.enterUsernameAndPassord(username, password);
+    login.enterUsernameAndPassword(username, password);
   }
 });
 

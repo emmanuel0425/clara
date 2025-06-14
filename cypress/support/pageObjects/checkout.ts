@@ -2,14 +2,29 @@ import { Checkout } from '../locators/checkout';
 import { Login } from '../locators/login';
 import { faker } from '@faker-js/faker';
 import { login } from './login';
+import { typeIntoField } from '../../e2e/utils/form-utils';
 
 class CheckoutPO {
+  // Properties to store form data for validation
+  firstName: string = '';
+  lastName: string = '';
+  zipCode: string = '';
+
   /**
    * @description Click on first Add to cart button.
    * @author Emmanuel
    */
   clickOnFirstAddToCartButton(): void {
     cy.contains(Checkout.ADD_TO_CART_BUTTON).first().should('be.visible').and('be.enabled').click();
+  }
+
+  /**
+   * @description Click on element.
+   * @param selector Selector of element to click on
+   * @author Emmanuel
+   */
+  clickOnElement(selector: string): void {
+    cy.get(selector).scrollIntoView().should('be.visible').click();
   }
 
   /**
@@ -37,6 +52,28 @@ class CheckoutPO {
   }
 
   /**
+   * @description Add an item to the cart.
+   * @param selector Selector to locate element to click on
+   * @param expectedQuantity Number of the expected amount of items in the cart
+   * @author Emmanuel
+   */
+  addItemToCart(selector: string, expectedQuantity: string): void {
+    this.clickOnElement(selector);
+    this.verifyItemWasAddedToTheCart(expectedQuantity);
+  }
+
+  /**
+   * @description Remove an item from the cart.
+   * @param selector Selector to locate element to click on
+   * @param expectedQuantity Number of the expected amount of items in the cart
+   * @author Emmanuel
+   */
+  removeItemFromCart(selector: string, expectedQuantity: string): void {
+    this.clickOnElement(selector);
+    this.verifyItemWasRemovedFromTheCart(expectedQuantity);
+  }
+
+  /**
    * @description Verify multiple items were added to the cart and cart was updated correctly.
    * @author Emmanuel
    */
@@ -46,23 +83,17 @@ class CheckoutPO {
       .should('have.length', 6)
       .then(() => {
         // Add first item to the cart
-        cy.get(Checkout.BACKPACK_CART_BUTTON).click();
-        this.verifyItemWasAddedToTheCart('1');
+        this.addItemToCart(Checkout.BACKPACK_CART_BUTTON, '1');
         // Add second item to the cart
-        cy.get(Checkout.BIKELIGHT_CART_BUTTON).click();
-        this.verifyItemWasAddedToTheCart('2');
+        this.addItemToCart(Checkout.BIKELIGHT_CART_BUTTON, '2');
         // Add third item to the cart
-        cy.get(Checkout.BOLTTSHIRT_CART_BUTTON).click();
-        this.verifyItemWasAddedToTheCart('3');
+        this.addItemToCart(Checkout.BOLTTSHIRT_CART_BUTTON, '3');
         // Add fourth item to the cart
-        cy.get(Checkout.FLEECEJACKET_CART_BUTTON).click();
-        this.verifyItemWasAddedToTheCart('4');
+        this.addItemToCart(Checkout.FLEECEJACKET_CART_BUTTON, '4');
         // Add fifth item to the cart
-        cy.get(Checkout.ONESIE_CART_BUTTON).click();
-        this.verifyItemWasAddedToTheCart('5');
+        this.addItemToCart(Checkout.ONESIE_CART_BUTTON, '5');
         // Add sixth item to the cart
-        cy.get(Checkout.REDTSHIRT_CART_BUTTON).click();
-        this.verifyItemWasAddedToTheCart('6');
+        this.addItemToCart(Checkout.REDTSHIRT_CART_BUTTON, '6');
       });
   }
 
@@ -72,47 +103,17 @@ class CheckoutPO {
    */
   verifyItemsWereRemovedFromTheCart(): void {
     // Remove first item from the cart
-    cy.get(Checkout.REMOVE_BACKPACK_BUTTON)
-      .scrollIntoView()
-      .should('be.visible')
-      .and('be.enabled')
-      .click();
-    this.verifyItemWasRemovedFromTheCart('5');
+    this.removeItemFromCart(Checkout.REMOVE_BACKPACK_BUTTON, '5');
     // Remove second item from the cart
-    cy.get(Checkout.REMOVE_BIKELIGHT_BUTTON)
-      .scrollIntoView()
-      .should('be.visible')
-      .and('be.enabled')
-      .click();
-    this.verifyItemWasRemovedFromTheCart('4');
+    this.removeItemFromCart(Checkout.REMOVE_BIKELIGHT_BUTTON, '4');
     // Remove third item from the cart
-    cy.get(Checkout.REMOVE_BOLTTSHIRT_BUTTON)
-      .scrollIntoView()
-      .should('be.visible')
-      .and('be.enabled')
-      .click();
-    this.verifyItemWasRemovedFromTheCart('3');
+    this.removeItemFromCart(Checkout.REMOVE_BOLTTSHIRT_BUTTON, '3');
     // Remove second item from the cart
-    cy.get(Checkout.REMOVE_FLEECEJACKET_BUTTON)
-      .scrollIntoView()
-      .should('be.visible')
-      .and('be.enabled')
-      .click();
-    this.verifyItemWasRemovedFromTheCart('2');
+    this.removeItemFromCart(Checkout.REMOVE_FLEECEJACKET_BUTTON, '2');
     // Remove first item from the cart
-    cy.get(Checkout.REMOVE_ONESIE_BUTTON)
-      .scrollIntoView()
-      .should('be.visible')
-      .and('be.enabled')
-      .click();
-    this.verifyItemWasRemovedFromTheCart('1');
+    this.removeItemFromCart(Checkout.REMOVE_ONESIE_BUTTON, '1');
     // Remove second item from the cart
-    cy.get(Checkout.REMOVE_REDTSHIRT_BUTTON)
-      .scrollIntoView()
-      .should('be.visible')
-      .and('be.enabled')
-      .click();
-    this.verifyItemWasRemovedFromTheCart('');
+    this.removeItemFromCart(Checkout.REMOVE_REDTSHIRT_BUTTON, '');
   }
 
   /**
@@ -121,7 +122,7 @@ class CheckoutPO {
    * @author Emmanuel
    */
   verifyItemWasRemovedFromTheCart(quantity: string): void {
-    if (quantity === '') {
+    if (!quantity) {
       cy.get(Checkout.CART_ICON).then(($el) => {
         const amount: string = $el.text();
         expect(amount).to.eq(quantity);
@@ -141,7 +142,7 @@ class CheckoutPO {
    * @author Emmanuel
    */
   clickOnCartIcon(): void {
-    cy.get(Checkout.CART_ICON).should('be.visible').click();
+    this.clickOnElement(Checkout.CART_ICON);
   }
 
   /**
@@ -149,7 +150,17 @@ class CheckoutPO {
    * @author Emmanuel
    */
   clickOnCheckoutButton(): void {
-    cy.get(Checkout.CHECKOUT_BUTTON).should('be.visible').and('be.enabled').click();
+    this.clickOnElement(Checkout.CHECKOUT_BUTTON);
+  }
+
+  /**
+   * Generates fake but valid user data for form submission.
+   * @author Emmanuel
+   */
+  generateFakeUserData(): void {
+    this.firstName = faker.person.firstName();
+    this.lastName = faker.person.lastName();
+    this.zipCode = faker.location.zipCode();
   }
 
   /**
@@ -157,9 +168,11 @@ class CheckoutPO {
    * @author Emmanuel
    */
   enterCheckoutMandatoryInfo(): void {
-    cy.get(Checkout.FIRST_NAME_TXTBOX).should('be.visible').type(faker.person.firstName());
-    cy.get(Checkout.LAST_NAME_TXTBOX).should('be.visible').type(faker.person.lastName());
-    cy.get(Checkout.POSTAL_CODE_TXTBOX).should('be.visible').type(faker.location.zipCode());
+    this.generateFakeUserData();
+
+    typeIntoField(Checkout.FIRST_NAME_TXTBOX, this.firstName);
+    typeIntoField(Checkout.LAST_NAME_TXTBOX, this.lastName);
+    typeIntoField(Checkout.POSTAL_CODE_TXTBOX, this.zipCode);
   }
 
   /**
@@ -167,7 +180,7 @@ class CheckoutPO {
    * @author Emmanuel
    */
   clickOnContinueButton(): void {
-    cy.get(Checkout.CONTINUE_BUTTON).should('be.visible').and('be.enabled').click();
+    this.clickOnElement(Checkout.CONTINUE_BUTTON);
   }
 
   /**
@@ -175,35 +188,14 @@ class CheckoutPO {
    * @author Emmanuel
    */
   getItemsTotal(): Cypress.Chainable<number> {
-    let itemPriceTotal: number = 0;
-
+    let total = 0;
     return cy
-      .get(Checkout.CART_LIST_DIV)
-      .find(Checkout.CART_ITEMS)
-      .then(($items) => {
-        const promises = [];
-
-        for (let i = 0; i < $items.length; i++) {
-          const itemPricePromise = cy
-            .wrap($items)
-            .get(Checkout.ITEM_PRICE_DIV)
-            .eq(i)
-            .then(($el) => {
-              // Get items sum price
-              const str: string = $el.text();
-              const itemPriceStr: string = str.replace('$', '');
-              const itemPrice: number = parseFloat(itemPriceStr);
-              itemPriceTotal += itemPrice;
-            });
-
-          promises.push(itemPricePromise);
-        }
-
-        // Wait for all promises to resolve, and return the final total
-        return cy.wrap(Promise.all(promises)).then(() => {
-          return itemPriceTotal; // Return final sum as a number
-        });
-      });
+      .get(Checkout.ITEM_PRICE_DIV)
+      .each(($el) => {
+        const price: number = parseFloat($el.text().replace('$', ''));
+        total += price;
+      })
+      .then(() => total);
   }
 
   /**
@@ -213,14 +205,10 @@ class CheckoutPO {
   verifyOrderInfoIsCorrect(): void {
     cy.get(Checkout.TAXES_DIV).then(($el) => {
       // Get tax amount
-      const str: string = $el.text();
-      const taxStr: string = str.replace(/Tax: \$/g, '');
-      const tax: number = parseFloat(taxStr);
+      const tax: number = parseFloat($el.text().replace(/Tax: \$/g, ''));
       cy.get(Checkout.TOTAL_DIV).then(($el) => {
         // Calculate and assert total amount
-        const str: string = $el.text();
-        const totalStr: string = str.replace(/Total: \$/g, '');
-        const total: number = parseFloat(totalStr);
+        const total: number = parseFloat($el.text().replace(/Total: \$/g, ''));
 
         // Call the getItemsTotal function to assert items total amount is correct
         this.getItemsTotal().then(($itemsTotal) => {
@@ -235,7 +223,7 @@ class CheckoutPO {
    * @author Emmanuel
    */
   clickOnFinishButton(): void {
-    cy.get(Checkout.FINISH_BUTTON).should('be.visible').and('be.enabled').click();
+    this.clickOnElement(Checkout.FINISH_BUTTON);
   }
 
   /**
