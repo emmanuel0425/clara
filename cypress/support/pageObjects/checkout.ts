@@ -78,22 +78,22 @@ class CheckoutPO {
    * @author Emmanuel
    */
   verifyMultipleItemsWereAddedToTheCart(): void {
+    const cartButtons: string[] = [
+      Checkout.BACKPACK_CART_BUTTON,
+      Checkout.BIKELIGHT_CART_BUTTON,
+      Checkout.BOLTTSHIRT_CART_BUTTON,
+      Checkout.FLEECEJACKET_CART_BUTTON,
+      Checkout.ONESIE_CART_BUTTON,
+      Checkout.REDTSHIRT_CART_BUTTON,
+    ];
+
     cy.get(Login.INVENTORY_DIV)
       .children()
-      .should('have.length', 6)
+      .should('have.length', cartButtons.length)
       .then(() => {
-        // Add first item to the cart
-        this.addItemToCart(Checkout.BACKPACK_CART_BUTTON, '1');
-        // Add second item to the cart
-        this.addItemToCart(Checkout.BIKELIGHT_CART_BUTTON, '2');
-        // Add third item to the cart
-        this.addItemToCart(Checkout.BOLTTSHIRT_CART_BUTTON, '3');
-        // Add fourth item to the cart
-        this.addItemToCart(Checkout.FLEECEJACKET_CART_BUTTON, '4');
-        // Add fifth item to the cart
-        this.addItemToCart(Checkout.ONESIE_CART_BUTTON, '5');
-        // Add sixth item to the cart
-        this.addItemToCart(Checkout.REDTSHIRT_CART_BUTTON, '6');
+        cartButtons.forEach((selector, index) => {
+          this.addItemToCart(selector, (index + 1).toString());
+        });
       });
   }
 
@@ -102,18 +102,22 @@ class CheckoutPO {
    * @author Emmanuel
    */
   verifyItemsWereRemovedFromTheCart(): void {
-    // Remove first item from the cart
-    this.removeItemFromCart(Checkout.REMOVE_BACKPACK_BUTTON, '5');
-    // Remove second item from the cart
-    this.removeItemFromCart(Checkout.REMOVE_BIKELIGHT_BUTTON, '4');
-    // Remove third item from the cart
-    this.removeItemFromCart(Checkout.REMOVE_BOLTTSHIRT_BUTTON, '3');
-    // Remove second item from the cart
-    this.removeItemFromCart(Checkout.REMOVE_FLEECEJACKET_BUTTON, '2');
-    // Remove first item from the cart
-    this.removeItemFromCart(Checkout.REMOVE_ONESIE_BUTTON, '1');
-    // Remove second item from the cart
-    this.removeItemFromCart(Checkout.REMOVE_REDTSHIRT_BUTTON, '');
+    const removeButtons: string[] = [
+      Checkout.REMOVE_BACKPACK_BUTTON,
+      Checkout.REMOVE_BIKELIGHT_BUTTON,
+      Checkout.REMOVE_BOLTTSHIRT_BUTTON,
+      Checkout.REMOVE_FLEECEJACKET_BUTTON,
+      Checkout.REMOVE_ONESIE_BUTTON,
+      Checkout.REMOVE_REDTSHIRT_BUTTON,
+    ];
+
+    removeButtons.forEach((selector, index) => {
+      // Calculate expected quantity after removal
+      const remainingQuantity = removeButtons.length - (index + 1);
+      const expected = remainingQuantity === 0 ? '' : remainingQuantity.toString();
+
+      this.removeItemFromCart(selector, expected);
+    });
   }
 
   /**
