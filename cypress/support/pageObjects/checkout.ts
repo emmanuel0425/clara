@@ -113,8 +113,8 @@ class CheckoutPO {
 
     removeButtons.forEach((selector, index) => {
       // Calculate expected quantity after removal
-      const remainingQuantity = removeButtons.length - (index + 1);
-      const expected = remainingQuantity === 0 ? '' : remainingQuantity.toString();
+      const remainingQuantity: number = removeButtons.length - (index + 1);
+      const expected: string = remainingQuantity === 0 ? '' : remainingQuantity.toString();
 
       this.removeItemFromCart(selector, expected);
     });
